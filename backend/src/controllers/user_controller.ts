@@ -21,8 +21,6 @@ class UserController {
         const salt: string = await bcrypt.genSalt(10);
         const hashedPassword: string = await bcrypt.hash(password, salt);
 
-        console.log(hashedPassword)
-
         const user = new User({ username, password: hashedPassword });
         
         try {

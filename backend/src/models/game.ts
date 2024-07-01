@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 
 const gameSchema = new mongoose.Schema({
+    creator: {
+        type: String,
+        required: true,
+    },
     player1: {
         type: String,
         required: true,
@@ -22,6 +26,10 @@ const gameSchema = new mongoose.Schema({
         required: true,
     },
     isSinglePlayer: {
+        type: Boolean,
+        required: true,
+    },
+    inProgress: {
         type: Boolean,
         required: true,
     },

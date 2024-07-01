@@ -1,5 +1,6 @@
 import User from '../models/user';
 
+import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { generateJwtToken } from '../middleware/jwt_middleware';
 
@@ -11,7 +12,19 @@ class UserController {
             return res.status(400).json({ message: 'Username and password are required' });
         }
 
-        const user = new User({ username, password });
+        const existingUser = await User.findOne({ username });
+
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+
+        const salt: string = await bcrypt.genSalt(10);
+        const hashedPassword: string = await bcrypt.hash(password, salt);
+
+        console.log(hashedPassword)
+
+        const user = new User({ username, password: hashedPassword });
+        
         try {
             await user.save();
             return res.status(201).json({ message: 'User created' });
@@ -27,9 +40,16 @@ class UserController {
             return res.status(400).json({ message: 'Username and password are required' });
         }
 
-        const user = await User.findOne({ username, password });
+        // Hash password to compare with hashed password in database
+        const user = await User.findOne({ username });
 
         if (!user) {
+            return res.status(401).json({ message: 'Invalid username or password' });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
 

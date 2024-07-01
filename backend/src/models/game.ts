@@ -21,6 +21,10 @@ const gameSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    isSinglePlayer: {
+        type: Boolean,
+        required: true,
+    },
 });
 
 const Game = mongoose.model('Game', gameSchema);

@@ -9,6 +9,20 @@ class GameController {
         return res.status(200).json(games);
     }
 
+    static async getGamesByUser(req: Request, res: Response): Promise<Response> {
+        const username: string = req.body.decoded_token.username;
+
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const games = await Game.find({ $or: [{ player1: user.id }, { player2: user.id }] });
+
+        return res.status(200).json(games);
+    }
+
     static async createSingleplayerGame(req: Request, res: Response): Promise<Response> {
         const creator: string = req.body.decoded_token.username;
         const player1: string = req.body.decoded_token.username;

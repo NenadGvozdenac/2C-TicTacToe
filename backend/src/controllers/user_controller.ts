@@ -2,14 +2,20 @@ import User from '../models/user';
 
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
-import { generateJwtToken } from '../middleware/jwt_middleware';
+import { generateJwtToken, verifyJwtToken } from '../middleware/jwt_middleware';
+
+import JwtPayload from '../types/JwtPayload';
 
 class UserController {
     static async register(req: Request, res: Response) {
-        const { username, password } = req.body;
+        const { username, password, confirmPassword } = req.body;
 
-        if (!username || !password) {
-            return res.status(400).json({ message: 'Username and password are required' });
+        if (!username || !password || !confirmPassword) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Passwords do not match' });
         }
 
         const existingUser = await User.findOne({ username });
@@ -67,6 +73,22 @@ class UserController {
             return res.status(200).json({ message: 'User deleted' });
         } catch (error) {
             return res.status(404).json({ message: 'User not found' });
+        }
+    }
+
+    static async verify(req: Request, res: Response) {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ message: 'Token is required' });
+        }
+
+        try {
+            const decoded: JwtPayload = verifyJwtToken(token); // Assuming verifyJwtToken returns JwtPayload
+            const { username } = decoded; // Access 'username' from decoded payload
+            return res.status(200).json({ message: 'Token is valid', username });
+        } catch (error) {
+            return res.status(401).json({ message: 'Invalid token' });
         }
     }
 }

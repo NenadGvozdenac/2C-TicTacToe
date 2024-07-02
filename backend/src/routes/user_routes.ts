@@ -5,6 +5,7 @@ import UserController from '../controllers/user_controller';
 const router = Router();
 
 router.post('/register', UserController.register);
+router.post('/verify', UserController.verify);
 router.post('/login', UserController.login);
 router.get('/', UserController.getAllUsers)
 router.delete('/:id', UserController.deleteUser)

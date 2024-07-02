@@ -19,11 +19,11 @@ const gameSchema = new mongoose.Schema({
     },
     endTime: {
         type: Date,
-        required: true,
+        required: false,
     },
     winner: {
         type: String,
-        required: true,
+        required: false,
     },
     isSinglePlayer: {
         type: Boolean,
@@ -32,6 +32,10 @@ const gameSchema = new mongoose.Schema({
     inProgress: {
         type: Boolean,
         required: true,
+    },
+    finished: {
+        type: Boolean,
+        default: false
     },
 });
 

@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 type Game = {
-  id: string;
+  _id: string;
   creator: string;
   player1: string;
   player2: string;

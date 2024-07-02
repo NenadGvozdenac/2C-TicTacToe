@@ -10,36 +10,81 @@ class GameController {
     }
 
     static async getGamesByUser(req: Request, res: Response): Promise<Response> {
-        const username: string = req.body.decoded_token.username;
+        const { username } = req.query;
 
-        const user = await User.findOne({ username });
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const games = await Game.find({ $or: [{ player1: user.id }, { player2: user.id }] });
+        const games = await Game.find({ $or: [{ player1: username }, { player2: username }] });
 
         return res.status(200).json(games);
     }
 
     static async createSingleplayerGame(req: Request, res: Response): Promise<Response> {
-        const creator: string = req.body.decoded_token.username;
-        const player1: string = req.body.decoded_token.username;
+        const creator: string = req.body.username;
+        const player1: string = req.body.username;
         const player2: string = 'Computer';
         const startTime: Date = new Date();
         const endTime: Date = new Date();
         const isSinglePlayer: boolean = true;
         const winner: string = '';
-        const inProgress: boolean = true;
+        const status: string = 'Pending';
 
-        const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, inProgress });
+        const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status });
 
         try {
             await game.save();
-            return res.status(201).json({ message: 'Game created' });
+            return res.status(201).json({ message: 'Game created', gameId: game.id });
         } catch (error) {
+            console.log(error);
             return res.status(400).json({ message: 'Game creation failed' });
+        }
+    }
+
+    static async joinSingleplayerGame(req: Request, res: Response): Promise<Response> {
+        const gameId: string = req.body.gameId;
+        const username: string = req.body.username;
+        
+        const game = await Game.findById(gameId);
+
+        if(!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+
+        if(game.player1 !== username) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        game.status = 'Started';
+        game.startTime = new Date();
+
+        try {
+            await game.save();
+            return res.status(200).json({ message: 'Game started' });
+        } catch (error) {
+            return res.status(400).json({ message: 'Game start failed' });
+        }
+    }
+
+    static async endSingleplayerGame(req: Request, res: Response): Promise<Response> {
+        const gameId: string = req.body.gameId;
+        const winner: string = req.body.username;
+        
+        const game = await Game.findById(gameId);
+
+        if(!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+
+        if(game.player1 !== winner && game.player2 !== winner) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        game.status = 'Finished';
+        game.endTime = new Date();
+
+        try {
+            await game.save();
+            return res.status(200).json({ message: 'Game ended' });
+        } catch (error) {
+            return res.status(400).json({ message: 'Game end failed' });
         }
     }
 
@@ -51,9 +96,9 @@ class GameController {
         const endTime: Date = new Date();
         const isSinglePlayer: boolean = false;
         const winner: string = '';
-        const inProgress: boolean = false;
+        const status: string = 'Pending';
 
-        const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, inProgress });
+        const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status });
 
         try {
             await game.save();
@@ -98,7 +143,7 @@ class GameController {
             return res.status(404).json({ message: 'Game not found' });
         }
 
-        game.inProgress = true;
+        game.status = 'InProgress';
 
         try {
             await game.save();
@@ -118,7 +163,7 @@ class GameController {
             return res.status(404).json({ message: 'Game not found' });
         }
 
-        game.inProgress = false;
+        game.status = 'Finished';
         game.endTime = new Date();
         
         const user = await User.findOne({ username: winner });
@@ -137,6 +182,28 @@ class GameController {
         } catch (error) {
             return res.status(400).json({ message: 'Game end failed' });
         }
+    }
+
+    static async deleteAllGames(req: Request, res: Response): Promise<Response> {
+        await Game.deleteMany({});
+        return res.status(200).json({ message: 'All games deleted' });
+    }
+
+    static async hasPlayerJoinedSingleplayerGame(req: Request, res: Response): Promise<Response> {
+        const gameId: string = req.body.gameId;
+        const username: string = req.body.username;
+
+        const game = await Game.findById(gameId);
+
+        if (!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+
+        if (game.player1 !== username) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        return res.status(200).json({ joined: game.status === 'Started' });
     }
 }
 

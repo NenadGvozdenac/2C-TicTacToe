@@ -19,19 +19,21 @@ const gameSchema = new mongoose.Schema({
     },
     endTime: {
         type: Date,
-        required: true,
+        required: false,
     },
     winner: {
         type: String,
-        required: true,
+        required: false,
     },
     isSinglePlayer: {
         type: Boolean,
         required: true,
     },
-    inProgress: {
-        type: Boolean,
+    status: {
+        type: String,
+        enum: ['Pending', 'Started', 'InProgress', 'Finished'],
         required: true,
+        default: 'Started',
     },
 });
 

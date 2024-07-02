@@ -94,9 +94,8 @@ class MoveController {
                 }
 
                 if(game) {
-                    game.finished = true;
                     game.winner = user.username
-                    game.inProgress = false;
+                    game.status = 'Finished';
                     await game.save();
                 }
 
@@ -108,9 +107,8 @@ class MoveController {
             const game = await Game.findById(gameId);
 
             if(game) {
-                game.finished = true;
                 game.winner = 'Draw';
-                game.inProgress = false;
+                game.status = 'Finished';
                 await game.save();
             }
 

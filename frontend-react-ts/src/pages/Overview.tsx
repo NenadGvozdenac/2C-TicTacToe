@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 type Game = {
-  id: number;
+  id: string;
   creator: string;
   player1: string;
   player2: string;
@@ -13,7 +13,7 @@ type Game = {
   endTime: Date;
   winner: string;
   isSinglePlayer: boolean;
-  inProgress: boolean;
+  status: string;
 };
 
 const Overview: React.FC = () => {
@@ -28,6 +28,7 @@ const Overview: React.FC = () => {
         const response = await axios.get('http://localhost:3000/games/user', {
           params: { username }
         });
+        console.log(response)
         setPreviousGames(response.data);
       } catch (error) {
         console.error('Error fetching previous games:', error);
@@ -111,14 +112,14 @@ const Overview: React.FC = () => {
               <div key={index} className='col-md-6'>
                 <div className='card mb-3'>
                   <div className='card-body'>
-                    <h5 className='card-title'>Game {game.id}</h5>
+                    <h5 className='card-title'>{game.isSinglePlayer ? "Singleplayer " : "Mutliplayer "} Game (#{game._id})</h5>
                     <p className='card-text'><strong>Creator:</strong> {game.creator}</p>
                     <p className='card-text'><strong>Player 1:</strong> {game.player1}</p>
                     <p className='card-text'><strong>Player 2:</strong> {game.player2}</p>
                     <p className='card-text'><strong>Start Time:</strong> {new Date(game.startTime).toLocaleString()}</p>
                     <p className='card-text'><strong>End Time:</strong> {new Date(game.endTime).toLocaleString()}</p>
                     <p className='card-text'><strong>Winner:</strong> {game.winner}</p>
-                    <p className='card-text'><strong>Single Player:</strong> {game.isSinglePlayer ? 'Yes' : 'No'}</p>
+                    <p className='card-text'><strong>Status:</strong> {game.status}</p>
                   </div>
                 </div>
               </div>

@@ -29,13 +29,11 @@ const gameSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
-    inProgress: {
-        type: Boolean,
+    status: {
+        type: String,
+        enum: ['Pending', 'Started', 'InProgress', 'Finished'],
         required: true,
-    },
-    finished: {
-        type: Boolean,
-        default: false
+        default: 'Started',
     },
 });
 

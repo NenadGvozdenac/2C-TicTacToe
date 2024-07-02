@@ -25,9 +25,9 @@ class GameController {
         const endTime: Date = new Date();
         const isSinglePlayer: boolean = true;
         const winner: string = '';
-        const inProgress: boolean = false;
+        const status: string = 'Pending';
 
-        const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, inProgress });
+        const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status });
 
         try {
             await game.save();
@@ -52,7 +52,7 @@ class GameController {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 
-        game.inProgress = true;
+        game.status = 'Started';
         game.startTime = new Date();
 
         try {
@@ -77,7 +77,7 @@ class GameController {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 
-        game.inProgress = false;
+        game.status = 'Finished';
         game.endTime = new Date();
 
         try {
@@ -96,9 +96,9 @@ class GameController {
         const endTime: Date = new Date();
         const isSinglePlayer: boolean = false;
         const winner: string = '';
-        const inProgress: boolean = false;
+        const status: string = 'Pending';
 
-        const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, inProgress });
+        const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status });
 
         try {
             await game.save();
@@ -143,7 +143,7 @@ class GameController {
             return res.status(404).json({ message: 'Game not found' });
         }
 
-        game.inProgress = true;
+        game.status = 'InProgress';
 
         try {
             await game.save();
@@ -163,7 +163,7 @@ class GameController {
             return res.status(404).json({ message: 'Game not found' });
         }
 
-        game.inProgress = false;
+        game.status = 'Finished';
         game.endTime = new Date();
         
         const user = await User.findOne({ username: winner });
@@ -203,7 +203,7 @@ class GameController {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 
-        return res.status(200).json({ joined: game.inProgress });
+        return res.status(200).json({ joined: game.status === 'Started' });
     }
 }
 

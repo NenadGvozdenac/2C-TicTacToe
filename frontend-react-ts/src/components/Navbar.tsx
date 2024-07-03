@@ -15,6 +15,10 @@ export default function Navbar() {
                             </button>
                             <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                 <li><button className="dropdown-item" onClick={() => {
+                                    navigate('/overview');
+                                }}>Overview</button></li>
+                                <li><hr className="dropdown-divider" /></li>
+                                <li><button className="dropdown-item" onClick={() => {
                                     localStorage.removeItem('jwtToken');
                                     localStorage.removeItem('username');
                                     navigate('/');

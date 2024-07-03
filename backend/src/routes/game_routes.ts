@@ -11,8 +11,7 @@ router.post('/join/singleplayer', GameController.joinSingleplayerGame)
 router.post('/end/singleplayer', GameController.endSingleplayerGame)
 
 router.post('/create/multiplayer', GameController.createMultiplayerGame)
-router.post('/join/multiplayer/:gameId', GameController.joinMultiplayerGame)
-router.post('/end/multiplayer/:gameId', GameController.endMultiplayerGame)
+router.get('/multiplayer/:gameid/players', GameController.getPlayersOfMultiplayerGame)
 
 router.get('/user', GameController.getGamesByUser)
 router.delete('/', GameController.deleteAllGames)

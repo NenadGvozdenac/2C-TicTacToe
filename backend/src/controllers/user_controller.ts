@@ -57,7 +57,7 @@ class UserController {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
 
-        return res.status(200).json({ message: 'Login successful', token: generateJwtToken({ username })});
+        return res.status(200).json({ message: 'Login successful', token: generateJwtToken({ username, userid: user.id })});
     }
 
     static async getAllUsers(req: Request, res: Response) {
@@ -86,7 +86,7 @@ class UserController {
         try {
             const decoded: JwtPayload = verifyJwtToken(token); // Assuming verifyJwtToken returns JwtPayload
             const { username } = decoded; // Access 'username' from decoded payload
-            return res.status(200).json({ message: 'Token is valid', username });
+            return res.status(200).json({ message: 'Token is valid', username, userId: decoded.userid});
         } catch (error) {
             return res.status(401).json({ message: 'Invalid token' });
         }

@@ -4,9 +4,7 @@ import { generateJwtToken } from '../../middleware/jwt_middleware';
 
 const userMutations = {
     Mutation: {
-        register: async (_: any, data: { username: string, password: string, confirmPassword: string }) => {
-            const { username, password, confirmPassword } = data;
-
+        register: async (_: any, { username, password, confirmPassword }: { username: string, password: string, confirmPassword: string }) => {
             if(password !== confirmPassword) {
                 throw new Error('Passwords do not match');
             }
@@ -29,9 +27,7 @@ const userMutations = {
             return newUser;
         },
 
-        login: async (_: any, data: { username: string, password: string }) => {
-            const { username, password } = data;
-
+        login: async (_: any, { username, password }: { username: string, password: string }) => {
             const user = await User.findOne({ username });
 
             if(!user) {

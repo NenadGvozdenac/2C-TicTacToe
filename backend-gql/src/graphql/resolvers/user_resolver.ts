@@ -6,12 +6,12 @@ const userResolver = {
             return await User.find();
         },
 
-        user: async (_: any, args: { id: string }) => {
-            return await User.findById(args.id);
+        user: async (_: any, { id }: { id: string }) => {
+            return await User.findById(id);
         },
 
-        userByUsername: async (_: any, args: { username: string }) => {
-            return await User.findOne({ username: args.username });
+        userByUsername: async (_: any, { username }: { username: string }) => {
+            return await User.findOne({ username });
         }
     }
 }

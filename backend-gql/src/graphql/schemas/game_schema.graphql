@@ -5,6 +5,11 @@ enum GameStatus {
     Finished
 }
 
+enum GameType {
+    SinglePlayer
+    MultiPlayer
+}
+
 type Game {
     creator: User!
     player1: User!
@@ -12,11 +17,16 @@ type Game {
     startTime: String!
     endTime: String
     winner: User
-    isSinglePlayer: Boolean!
+    gameType: GameType!
     status: GameStatus!
 }
 
 type Query {
-    games: [Game]
-    game(id: ID!): Game
+    getAllGamesByUser(userId: ID!): [Game]!
+    getAllGamesByUsername(username: String!): [Game]!
+    getGameById(gameId: ID!): Game!
+}
+
+type Mutation {
+    createGame(creatorId: ID!, playerId: ID!, gameType: GameType!): Game!
 }

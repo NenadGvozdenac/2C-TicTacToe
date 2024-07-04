@@ -6,6 +6,7 @@ const ValidateToken = async (token: string): Promise<boolean> => {
     try {
         const response = await axios.post('http://localhost:3000/users/verify', { token });
         localStorage.setItem('username', response.data.username);
+        localStorage.setItem('userId', response.data.userId);
         return true;
     } catch {
         return false;

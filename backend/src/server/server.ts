@@ -1,0 +1,72 @@
+import app from './app';
+import http from 'http';
+import { Server } from 'socket.io';
+
+const server = http.createServer(app);
+
+const io: Server = new Server(server, {
+    cors: {
+        origin: 'http://localhost:5173',
+        methods: ['GET', 'POST'],
+    },
+});
+
+import MultiplayerGameController from '../controllers/multiplayer_game_controller';
+
+io.on('connection', async (socket) => {
+    socket.on('join', ({ gameid, username }) => {
+        console.log('Player joined:', gameid, username);
+        MultiplayerGameController.addPlayer(gameid, username).then((game) => {
+            if (!game) {
+                return;
+            }
+            // Want to create a new room for each game
+            socket.join(gameid);
+            console.log('Players:', game.player1, game.player2);
+            io.to(gameid).emit('playerJoined', { players: [game.player1, game.player2] });
+        });
+    });
+
+    socket.on('leave', ({ gameid, username }) => {
+        console.log('Player left:', gameid, username);
+        MultiplayerGameController.removePlayer(gameid, username).then((game) => {
+            if (!game) {
+                return;
+            }
+            console.log('Players:', game.player1, game.player2);
+            io.to(gameid).emit('playerLeft', { players: [game.player1, game.player2] });
+        });
+    });
+
+    socket.on('startGame', ({ gameid }) => {
+        console.log('Game started:', gameid);
+        MultiplayerGameController.startGame(gameid).then((game) => {
+            if (!game) {
+                return;
+            }
+            io.to(gameid).emit('gameStarted', { game: game, firstPlayer: game.player1 })
+        });
+    });
+
+    socket.on('move', (data) => {
+        MultiplayerGameController.makeMove(data.gameid, data.username, data.index, data.value).then((move) => {
+            if(!move) {
+                return;
+            }
+
+            io.to(data.gameid).emit('move', { move: move, board: move.board, nextPlayer: move.nextPlayer });
+
+            MultiplayerGameController.checkGameStatus(data.gameid, data.username).then(game => {
+                if (game) {
+                    io.to(data.gameid).emit('gameIsOver', { game: game });
+                }
+            });
+        });
+    });
+});
+
+app.listen(3000, () => {
+    console.log('Express server is running on port 3000');
+})
+
+export default server;

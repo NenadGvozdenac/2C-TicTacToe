@@ -31,8 +31,8 @@ export default function RegisterForm() {
 
     return (
         <div className='container'>
-            <div className="row">
-                <div className="col-md-4 offset-md-3">
+            <div className="row d-flex justify-content-center align-items-center">
+                <div className="col-md-4">
                     <h1 className='text-center'>Register</h1>
                     <p className='text-danger'>{error}</p>
                     <form>

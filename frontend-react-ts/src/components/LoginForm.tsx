@@ -26,8 +26,8 @@ export default function LoginForm() {
 
     return (
         <div className="container">
-            <div className="row">
-                <div className="col-md-4 offset-md-3">
+            <div className="row d-flex align-items-center justify-content-center">
+                <div className="col-md-4 col-8">
                     <h1 className="text-center">Login</h1>
                     <p className="text-danger">{error}</p>
                     <form>
@@ -53,7 +53,6 @@ export default function LoginForm() {
                         </div>
                         <button type="submit" className="btn btn-primary" onClick={event => loginUser(event)}>Login</button>
                     </form>
-                    {/* No account? */}
                     <div className="mt-3">
                         <a href="/register">Create an account</a>
                     </div>

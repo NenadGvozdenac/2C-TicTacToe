@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
-import TicTacToeBoard from "../components/TicTacToeBoard";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import TicTacToeBoardSingleplayer from "../components/TicTacToeBoardSingleplayer";
 
 const SingleplayerGame = () => {
   const location = useLocation();
@@ -11,7 +11,7 @@ const SingleplayerGame = () => {
   return (
     <div className='d-flex flex-column justify-content-between min-vh-100'>
       <Navbar />
-      <TicTacToeBoard gameid={gameid || undefined} />
+      <TicTacToeBoardSingleplayer gameid={gameid || undefined} />
       <Footer />
     </div>
   );

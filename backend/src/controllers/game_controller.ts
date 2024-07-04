@@ -12,7 +12,25 @@ class GameController {
     static async getGamesByUser(req: Request, res: Response): Promise<Response> {
         const { username } = req.query;
 
-        const games = await Game.find({ $or: [{ player1: username }, { player2: username }] });
+        let newUsername: string = username as string;
+
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        let games = await Game.find({ $or: [{ player1: username }, { player2: username }, { player1: user.id }, { player2: user.id }] });
+
+        for (let game of games) {
+            if (!game.isSinglePlayer) {
+                game.player1 = (await User.findById(game.player1))?.username as string;
+                game.player2 = (await User.findById(game.player2))?.username as string;
+                if(!(game.winner == "Draw")) {
+                    game.winner = (await User.findById(game.winner))?.username as string;
+                }
+            }
+        }
 
         return res.status(200).json(games);
     }
@@ -89,98 +107,24 @@ class GameController {
     }
 
     static async createMultiplayerGame(req: Request, res: Response): Promise<Response> {
-        const creator: string = req.body.decoded_token.username;
-        const player1: string = req.body.decoded_token.username;
-        const player2: string = 'Not yet joined';
+        const creator: string = req.body.username;
+        const player1: string = "Pending";
+        const player2: string = 'Pending';
         const startTime: Date = new Date();
         const endTime: Date = new Date();
         const isSinglePlayer: boolean = false;
         const winner: string = '';
         const status: string = 'Pending';
 
+        console.log(creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status);
+
         const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status });
 
         try {
             await game.save();
-            return res.status(201).json({ message: 'Game created' });
+            return res.status(201).json({ message: 'Game created', gameId: game.id});
         } catch (error) {
             return res.status(400).json({ message: 'Game creation failed' });
-        }
-    }
-
-    static async joinMultiplayerGame(req: Request, res: Response): Promise<Response> {
-        const gameId: string = req.params.gameId;
-        const player2: string = req.body.decoded_token.username;
-
-        const game = await Game.findById(gameId);
-
-        if (!game) {
-            return res.status(404).json({ message: 'Game not found' });
-        }
-
-        const user2 = await User.findOne({ username: player2 });
-
-        if (!user2) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        game.player2 = user2.id;
-
-        try {
-            await game.save();
-            return res.status(200).json({ message: 'Player joined game' });
-        } catch (error) {
-            return res.status(400).json({ message: 'Player joining game failed' });
-        }
-    }
-
-    static async startMultiplayerGame(req: Request, res: Response): Promise<Response> {
-        const gameId: string = req.params.gameId;
-
-        const game = await Game.findById(gameId);
-
-        if (!game) {
-            return res.status(404).json({ message: 'Game not found' });
-        }
-
-        game.status = 'InProgress';
-
-        try {
-            await game.save();
-            return res.status(200).json({ message: 'Game started' });
-        } catch (error) {
-            return res.status(400).json({ message: 'Game start failed' });
-        }
-    }
-
-    static async endMultiplayerGame(req: Request, res: Response): Promise<Response> {
-        const gameId: string = req.params.gameId;
-        const winner: string = req.body.decoded_token.username;
-
-        const game = await Game.findById(gameId);
-
-        if (!game) {
-            return res.status(404).json({ message: 'Game not found' });
-        }
-
-        game.status = 'Finished';
-        game.endTime = new Date();
-        
-        const user = await User.findOne({ username: winner });
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        user.gamesWon += 1
-        game.winner = user.id;
-
-        try {
-            await game.save();
-            await user.save();
-            return res.status(200).json({ message: 'Game ended' });
-        } catch (error) {
-            return res.status(400).json({ message: 'Game end failed' });
         }
     }
 
@@ -204,6 +148,20 @@ class GameController {
         }
 
         return res.status(200).json({ joined: game.status === 'Started' });
+    }
+
+    static async getPlayersOfMultiplayerGame(req: Request, res: Response): Promise<Response> {
+        const gameId: string = req.params.gameid;
+
+        const game = await Game.findById(gameId);
+
+        if (!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+
+        const players = [game.player1, game.player2];
+
+        return res.status(200).json({ players });
     }
 }
 

@@ -1,9 +1,9 @@
-import app from './server/app'
+import server from './server/server';
 
 import { connectToDatabase } from './database/config'
 
 connectToDatabase();
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000')
+server.listen(4000, () => {
+    console.log('Socket-io server is running on port 4000');
 })

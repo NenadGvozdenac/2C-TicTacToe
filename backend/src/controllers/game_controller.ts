@@ -20,7 +20,6 @@ class GameController {
 
         let games = await Game.find({ $or: [{ player1: username }, { player2: username }, { player1: user.id }, { player2: user.id }] });
 
-        // Find the games where the user is the creator
         const creatorGames = await Game.find({ creator: username });
 
         for (let game of games) {
@@ -30,14 +29,10 @@ class GameController {
             }
         }
 
-        // Need unique games
-        let gamesToReturn = [...games, ...creatorGames];
-
-        // Remove duplicates
-        gamesToReturn = gamesToReturn.filter((game, index, self) => self.findIndex(t => t.id === game.id) === index);
+        let uniqueGames = [...games, ...creatorGames].filter((game, index, self) => self.findIndex(t => t.id === game.id) === index);
 
         return res.status(200).json({
-            games: gamesToReturn
+            games: uniqueGames
         });
     }
 

@@ -14,6 +14,22 @@ const io: Server = new Server(server, {
 import MultiplayerGameController from '../controllers/multiplayer_game_controller';
 
 io.on('connection', async (socket) => {
+    // If user was already in a game, rejoin the game
+    socket.on('rejoin', ({ gameid, username }) => {
+        console.log('Player rejoined:', gameid, username);
+        MultiplayerGameController.rejoinGame(gameid, username).then(data => {
+            if (!data) {
+                return;
+            }
+
+            let { player1, player2, board, nextPlayer, nextValue, history, hasStarted } = data;
+
+            socket.join(gameid);
+
+            socket.emit('rejoinGame', { player1, player2, board, nextPlayer, nextValue, history, hasStarted });
+        });
+    });
+
     socket.on('join', ({ gameid, username }) => {
         console.log('Player joined:', gameid, username);
         MultiplayerGameController.addPlayer(gameid, username).then((game) => {

@@ -12,8 +12,6 @@ class GameController {
     static async getGamesByUser(req: Request, res: Response): Promise<Response> {
         const { username } = req.query;
 
-        let newUsername: string = username as string;
-
         const user = await User.findOne({ username });
 
         if (!user) {
@@ -26,7 +24,7 @@ class GameController {
             if (!game.isSinglePlayer) {
                 game.player1 = (await User.findById(game.player1))?.username as string;
                 game.player2 = (await User.findById(game.player2))?.username as string;
-                if(!(game.winner == "Draw")) {
+                if(game.winner != "Draw" && game.winner != "") {
                     game.winner = (await User.findById(game.winner))?.username as string;
                 }
             }

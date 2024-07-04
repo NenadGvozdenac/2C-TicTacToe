@@ -26,13 +26,31 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
         // Connect to the server and get joinedPlayers
         socket.on("connect", () => {
             console.log("Connected to server.");
+
+            if(gameid && !joined) {
+                socket.emit("rejoin", { gameid, username: localStorage.getItem("username")});
+            }
         });
 
-        socket.on("loadGame", (data: any) => {
-            console.log("Game loaded:", data);
-            setBoard(data.board);
-            setMoves(data.moves);
-        })
+        socket.on("rejoinGame", (data: any) => {
+            console.log("Rejoin game data:", data);
+            let { player1, player2, board, nextPlayer, nextValue, history, hasStarted } = data;
+
+            setJoined(true);
+            setJoinedPlayers([player1, player2]);
+            setBoard(board);
+            setMoves(history);
+            setGameStarted(hasStarted);
+
+            console.log("Next player:", nextPlayer)
+            console.log("Local storage user ID:", localStorage.getItem("userId"));
+
+            setCurrentValue(nextValue)
+
+            if(nextPlayer == localStorage.getItem("userId")) {
+                setCanMakeTurn(true);
+            }
+        });
 
         socket.on("move", (data: any) => {
             console.log("Move received:", data);

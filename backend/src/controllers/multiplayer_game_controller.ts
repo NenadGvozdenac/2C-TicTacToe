@@ -197,6 +197,38 @@ class MultiplayerGameController {
             }
         }
     }
+
+    static async rejoinGame(gameId: string, username: string) {
+        let game = await Game.findById(gameId);
+
+        if (!game) {
+            return null;
+        }
+
+        let player = await User.findOne({ username });
+
+        if (!player) {
+            return null;
+        }
+
+        if (game.player1 == player.id || game.player2 == player.id) {
+            let board = await GenerateBoard(gameId);
+            let history = await GetHistory(gameId);
+
+            let lastMove = history[history.length - 1];
+            let nextValue = lastMove.value == 'X' ? 'O' : 'X';
+
+            console.log('nextValue:', nextValue)
+
+            let nextPlayer = game.player1 == lastMove.player ? game.player2 : game.player1;
+
+            let hasStarted = game.status == 'Started';
+
+            return { player1: game.player1, player2: game.player2, board, nextPlayer, nextValue, history, hasStarted };
+        }
+
+        return null;
+    }
 }
 
 export default MultiplayerGameController;

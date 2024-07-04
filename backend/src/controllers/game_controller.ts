@@ -32,7 +32,18 @@ class GameController {
             }
         }
 
-        return res.status(200).json(games);
+        // Find the games where the user is the creator
+        const creatorGames = await Game.find({ creator: username });
+
+        // Need unique games
+        let gamesToReturn = [...games, ...creatorGames];
+
+        // Remove duplicates
+        gamesToReturn = gamesToReturn.filter((game, index, self) => self.findIndex(t => t.id === game.id) === index);
+
+        return res.status(200).json({
+            games: gamesToReturn
+        });
     }
 
     static async createSingleplayerGame(req: Request, res: Response): Promise<Response> {
@@ -162,6 +173,18 @@ class GameController {
         const players = [game.player1, game.player2];
 
         return res.status(200).json({ players });
+    }
+
+    static async getMultiplayerGame(req: Request, res: Response): Promise<Response> {
+        const gameId: string = req.params.gameid;
+
+        const game = await Game.findById(gameId);
+
+        if (!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+
+        return res.status(200).json(game);
     }
 }
 

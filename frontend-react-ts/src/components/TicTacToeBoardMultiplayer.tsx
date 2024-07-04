@@ -102,7 +102,7 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
             console.log("Game over:", data);
             // Handle game over logic here
             if(data.winner != "Draw") {
-                setDisplayedGameEnd(`Player ${data.winner} wins! Redirecting to overview...`);
+                setDisplayedGameEnd(`Player ${data.game.winner} wins! Redirecting to overview...`);
                 setCanMakeTurn(false);
             } else {
                 setDisplayedGameEnd("It's a draw! Redirecting to overview...");

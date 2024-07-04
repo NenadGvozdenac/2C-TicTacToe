@@ -169,7 +169,7 @@ class MultiplayerGameController {
 
         for (let combo of winningCombos) {
             if (board[combo[0]] && board[combo[0]] == board[combo[1]] && board[combo[0]] == board[combo[2]]) {
-                game.winner = (await User.findOne({ username }))?.id;
+                game.winner = (await User.findOne({ username }))?.username;
                 game.status = 'Finished';
                 game.endTime = new Date();
 

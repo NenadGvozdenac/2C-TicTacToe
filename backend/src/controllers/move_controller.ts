@@ -43,7 +43,7 @@ class MoveController {
             await newBotMove.save();
 
             const newWinner = await checkForWinner(gameId);
-            
+
             if (newWinner) {
                 return res.status(200).json({ message: 'Game won', winner: newWinner, newMove });
             }
@@ -70,7 +70,26 @@ class MoveController {
         try {
             const moves = await Move.find({ gameId });
 
-            return res.status(200).json(moves);
+            const usernames = new Set(moves.map((move) => move.player).filter((player) => player !== 'Computer'));
+
+            for (let username of usernames) {
+                const user = await User.findById(username);
+
+                if (user) {
+                    moves.forEach((move) => {
+                        if (move.player === user.id) {
+                            move.player = user.username;
+                        }
+                    });
+                }
+            }
+
+            let winner = await checkForWinner(gameId);
+
+            return res.status(200).json({
+                moves,
+                winner,
+            });
         } catch (error) {
             return res.status(404).json({ message: 'Moves not found' });
         }

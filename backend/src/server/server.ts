@@ -2,11 +2,13 @@ import app from './app';
 import http from 'http';
 import { Server } from 'socket.io';
 
+import { secrets } from '../database/secrets';
+
 const server = http.createServer(app);
 
 const io: Server = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: secrets.FE_URL,
         methods: ['GET', 'POST'],
     },
 });
@@ -81,7 +83,7 @@ io.on('connection', async (socket) => {
     });
 });
 
-app.listen(3000, () => {
+app.listen(secrets.EXPRESS_PORT, () => {
     console.log('Express server is running on port 3000');
 })
 

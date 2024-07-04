@@ -27,9 +27,6 @@ class GameController {
             if (!game.isSinglePlayer) {
                 game.player1 = game.player1 != "Pending" ? (await User.findById(game.player1))?.username as string : "Pending";
                 game.player2 = game.player2 != "Pending" ? (await User.findById(game.player2))?.username as string : "Pending";
-                if(game.winner != "Draw" && game.winner != "") {
-                    game.winner = (await User.findById(game.winner))?.username as string;
-                }
             }
         }
 

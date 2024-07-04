@@ -52,7 +52,6 @@ class GameController {
             await game.save();
             return res.status(201).json({ message: 'Game created', gameId: game.id });
         } catch (error) {
-            console.log(error);
             return res.status(400).json({ message: 'Game creation failed' });
         }
     }
@@ -116,8 +115,6 @@ class GameController {
         const isSinglePlayer: boolean = false;
         const winner: string = '';
         const status: string = 'Pending';
-
-        console.log(creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status);
 
         const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status });
 

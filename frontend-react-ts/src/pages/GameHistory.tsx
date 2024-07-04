@@ -37,7 +37,7 @@ const GameHistory: React.FC = () => {
     <div className='d-flex flex-column justify-content-between min-vh-100'>
       <Navbar />
       <div className="container">
-        <h1>Game History: {gameid} </h1>
+        <h1>Game History: #{gameid} </h1>
       </div>
       {/* Move history in a table */}
       <div className="container">

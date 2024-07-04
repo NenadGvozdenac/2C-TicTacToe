@@ -14,6 +14,7 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
     const [enabledStartButton, setEnabledStartButton] = useState<boolean>(false);
     const [gameStarted, setGameStarted] = useState<boolean>(false);
     const [canMakeTurn, setCanMakeTurn] = useState<boolean>(false);
+    const [displayedGameEnd, setDisplayedGameEnd] = useState<string>("");
 
     const [currentValue, setCurrentValue] = useState<string>("X");
 
@@ -41,6 +42,8 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
             setBoard(board);
             setMoves(history);
             setGameStarted(hasStarted);
+
+            setEnabledStartButton(!hasStarted && !joinedPlayers.includes("Pending"));
 
             console.log("Next player:", nextPlayer)
             console.log("Local storage user ID:", localStorage.getItem("userId"));
@@ -99,12 +102,16 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
             console.log("Game over:", data);
             // Handle game over logic here
             if(data.winner != "Draw") {
-                alert(`Player ${data.game.winner} wins!`);
+                setDisplayedGameEnd(`Player ${data.winner} wins! Redirecting to overview...`);
+                setCanMakeTurn(false);
             } else {
-                alert("Game is a draw!");
+                setDisplayedGameEnd("It's a draw! Redirecting to overview...");
+                setCanMakeTurn(false);
             }
 
-            navigate("/overview");
+            setTimeout(() => {
+                navigate("/overview");
+            }, 3000);
         });
     }, [gameid, socket]);
 
@@ -171,6 +178,10 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
                     <div className="card mb-3">
                         <div className="card-body">
                             <h5 className="card-title">Game Board</h5>
+                            {/* Game end */}
+                            {displayedGameEnd && <div className="alert alert-primary" role="alert">
+                                {displayedGameEnd}
+                            </div>}
                             <div className="row">
                                 {board.map((cell, index) => (
                                     <div

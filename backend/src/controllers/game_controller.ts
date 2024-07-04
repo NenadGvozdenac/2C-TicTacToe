@@ -20,18 +20,18 @@ class GameController {
 
         let games = await Game.find({ $or: [{ player1: username }, { player2: username }, { player1: user.id }, { player2: user.id }] });
 
+        // Find the games where the user is the creator
+        const creatorGames = await Game.find({ creator: username });
+
         for (let game of games) {
             if (!game.isSinglePlayer) {
-                game.player1 = (await User.findById(game.player1))?.username as string;
-                game.player2 = (await User.findById(game.player2))?.username as string;
+                game.player1 = game.player1 != "Pending" ? (await User.findById(game.player1))?.username as string : "Pending";
+                game.player2 = game.player2 != "Pending" ? (await User.findById(game.player2))?.username as string : "Pending";
                 if(game.winner != "Draw" && game.winner != "") {
                     game.winner = (await User.findById(game.winner))?.username as string;
                 }
             }
         }
-
-        // Find the games where the user is the creator
-        const creatorGames = await Game.find({ creator: username });
 
         // Need unique games
         let gamesToReturn = [...games, ...creatorGames];

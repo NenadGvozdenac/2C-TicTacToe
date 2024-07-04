@@ -216,15 +216,18 @@ class MultiplayerGameController {
             let history = await GetHistory(gameId);
 
             let lastMove = history[history.length - 1];
-            let nextValue = lastMove.value == 'X' ? 'O' : 'X';
 
-            console.log('nextValue:', nextValue)
+            if(lastMove){
+                var nextValue = lastMove.value == 'X' ? 'O' : 'X';
+    
+                let nextPlayer = game.player1 == lastMove.player ? game.player2 : game.player1;
+    
+                let hasStarted = game.status == 'Started';
 
-            let nextPlayer = game.player1 == lastMove.player ? game.player2 : game.player1;
+                return { player1: game.player1, player2: game.player2, board, nextPlayer, nextValue, history, hasStarted };
+            }
 
-            let hasStarted = game.status == 'Started';
-
-            return { player1: game.player1, player2: game.player2, board, nextPlayer, nextValue, history, hasStarted };
+            return { player1: game.player1, player2: game.player2, board, nextPlayer: game.player1, nextValue: 'X', history, hasStarted: false };
         }
 
         return null;

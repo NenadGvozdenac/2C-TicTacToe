@@ -23,10 +23,12 @@ const GameHistory: React.FC = () => {
   const navigate = useNavigate();
 
   const [moves, setMoves] = useState<Move[]>([]);
+  const [winner, setWinner] = useState<string | null>(null);
 
   useEffect(() => {
     axios.get(`http://localhost:3000/moves/${gameid}`).then(response => {
-      setMoves(response.data);
+      setMoves(response.data.moves);
+      setWinner(response.data.winner);
     }).catch(error => {
       console.log('Error fetching moves:', error);
       navigate('/overview');
@@ -37,7 +39,7 @@ const GameHistory: React.FC = () => {
     <div className='d-flex flex-column justify-content-between min-vh-100'>
       <Navbar />
       <div className="container">
-        <h1>Game History: {gameid} </h1>
+        <h1>Game History: #{gameid} </h1>
       </div>
       {/* Move history in a table */}
       <div className="container">
@@ -63,6 +65,9 @@ const GameHistory: React.FC = () => {
             ))}
           </tbody>
         </table>
+
+        {/* Display winner */}
+        {winner && <h2 className='mt-5'>Winner: {winner}</h2>}
       </div>
       <Footer />
     </div>

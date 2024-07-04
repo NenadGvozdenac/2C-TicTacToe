@@ -14,6 +14,7 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
     const [enabledStartButton, setEnabledStartButton] = useState<boolean>(false);
     const [gameStarted, setGameStarted] = useState<boolean>(false);
     const [canMakeTurn, setCanMakeTurn] = useState<boolean>(false);
+    const [displayedGameEnd, setDisplayedGameEnd] = useState<string>("");
 
     const [currentValue, setCurrentValue] = useState<string>("X");
 
@@ -26,13 +27,33 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
         // Connect to the server and get joinedPlayers
         socket.on("connect", () => {
             console.log("Connected to server.");
+
+            if(gameid && !joined) {
+                socket.emit("rejoin", { gameid, username: localStorage.getItem("username")});
+            }
         });
 
-        socket.on("loadGame", (data: any) => {
-            console.log("Game loaded:", data);
-            setBoard(data.board);
-            setMoves(data.moves);
-        })
+        socket.on("rejoinGame", (data: any) => {
+            console.log("Rejoin game data:", data);
+            let { player1, player2, board, nextPlayer, nextValue, history, hasStarted } = data;
+
+            setJoined(true);
+            setJoinedPlayers([player1, player2]);
+            setBoard(board);
+            setMoves(history);
+            setGameStarted(hasStarted);
+
+            setEnabledStartButton(!hasStarted && !joinedPlayers.includes("Pending"));
+
+            console.log("Next player:", nextPlayer)
+            console.log("Local storage user ID:", localStorage.getItem("userId"));
+
+            setCurrentValue(nextValue)
+
+            if(nextPlayer == localStorage.getItem("userId")) {
+                setCanMakeTurn(true);
+            }
+        });
 
         socket.on("move", (data: any) => {
             console.log("Move received:", data);
@@ -81,12 +102,16 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
             console.log("Game over:", data);
             // Handle game over logic here
             if(data.winner != "Draw") {
-                alert(`Player ${data.game.winner} wins!`);
+                setDisplayedGameEnd(`Player ${data.game.winner} wins! Redirecting to overview...`);
+                setCanMakeTurn(false);
             } else {
-                alert("Game is a draw!");
+                setDisplayedGameEnd("It's a draw! Redirecting to overview...");
+                setCanMakeTurn(false);
             }
 
-            navigate("/overview");
+            setTimeout(() => {
+                navigate("/overview");
+            }, 3000);
         });
     }, [gameid, socket]);
 
@@ -153,6 +178,10 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
                     <div className="card mb-3">
                         <div className="card-body">
                             <h5 className="card-title">Game Board</h5>
+                            {/* Game end */}
+                            {displayedGameEnd && <div className="alert alert-primary" role="alert">
+                                {displayedGameEnd}
+                            </div>}
                             <div className="row">
                                 {board.map((cell, index) => (
                                     <div

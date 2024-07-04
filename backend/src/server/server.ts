@@ -2,11 +2,13 @@ import app from './app';
 import http from 'http';
 import { Server } from 'socket.io';
 
+import { secrets } from '../database/secrets';
+
 const server = http.createServer(app);
 
 const io: Server = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: secrets.FE_URL,
         methods: ['GET', 'POST'],
     },
 });
@@ -14,13 +16,26 @@ const io: Server = new Server(server, {
 import MultiplayerGameController from '../controllers/multiplayer_game_controller';
 
 io.on('connection', async (socket) => {
+    // If user was already in a game, rejoin the game
+    socket.on('rejoin', ({ gameid, username }) => {
+        console.log('Player rejoined:', gameid, username);
+        MultiplayerGameController.rejoinGame(gameid, username).then(data => {
+            if (!data) {
+                return;
+            }
+
+            socket.join(gameid);
+            socket.emit('rejoinGame', data);
+        });
+    });
+
     socket.on('join', ({ gameid, username }) => {
         console.log('Player joined:', gameid, username);
         MultiplayerGameController.addPlayer(gameid, username).then((game) => {
             if (!game) {
                 return;
             }
-            // Want to create a new room for each game
+
             socket.join(gameid);
             console.log('Players:', game.player1, game.player2);
             io.to(gameid).emit('playerJoined', { players: [game.player1, game.player2] });
@@ -33,6 +48,7 @@ io.on('connection', async (socket) => {
             if (!game) {
                 return;
             }
+            
             console.log('Players:', game.player1, game.player2);
             io.to(gameid).emit('playerLeft', { players: [game.player1, game.player2] });
         });
@@ -65,7 +81,7 @@ io.on('connection', async (socket) => {
     });
 });
 
-app.listen(3000, () => {
+app.listen(secrets.EXPRESS_PORT, () => {
     console.log('Express server is running on port 3000');
 })
 

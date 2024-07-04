@@ -12,8 +12,6 @@ class GameController {
     static async getGamesByUser(req: Request, res: Response): Promise<Response> {
         const { username } = req.query;
 
-        let newUsername: string = username as string;
-
         const user = await User.findOne({ username });
 
         if (!user) {
@@ -22,17 +20,20 @@ class GameController {
 
         let games = await Game.find({ $or: [{ player1: username }, { player2: username }, { player1: user.id }, { player2: user.id }] });
 
+        const creatorGames = await Game.find({ creator: username });
+
         for (let game of games) {
             if (!game.isSinglePlayer) {
-                game.player1 = (await User.findById(game.player1))?.username as string;
-                game.player2 = (await User.findById(game.player2))?.username as string;
-                if(!(game.winner == "Draw")) {
-                    game.winner = (await User.findById(game.winner))?.username as string;
-                }
+                game.player1 = game.player1 != "Pending" ? (await User.findById(game.player1))?.username as string : "Pending";
+                game.player2 = game.player2 != "Pending" ? (await User.findById(game.player2))?.username as string : "Pending";
             }
         }
 
-        return res.status(200).json(games);
+        let uniqueGames = [...games, ...creatorGames].filter((game, index, self) => self.findIndex(t => t.id === game.id) === index);
+
+        return res.status(200).json({
+            games: uniqueGames
+        });
     }
 
     static async createSingleplayerGame(req: Request, res: Response): Promise<Response> {
@@ -51,7 +52,6 @@ class GameController {
             await game.save();
             return res.status(201).json({ message: 'Game created', gameId: game.id });
         } catch (error) {
-            console.log(error);
             return res.status(400).json({ message: 'Game creation failed' });
         }
     }
@@ -116,8 +116,6 @@ class GameController {
         const winner: string = '';
         const status: string = 'Pending';
 
-        console.log(creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status);
-
         const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status });
 
         try {
@@ -162,6 +160,18 @@ class GameController {
         const players = [game.player1, game.player2];
 
         return res.status(200).json({ players });
+    }
+
+    static async getMultiplayerGame(req: Request, res: Response): Promise<Response> {
+        const gameId: string = req.params.gameid;
+
+        const game = await Game.findById(gameId);
+
+        if (!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+
+        return res.status(200).json(game);
     }
 }
 

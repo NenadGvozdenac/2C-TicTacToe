@@ -169,7 +169,7 @@ class MultiplayerGameController {
 
         for (let combo of winningCombos) {
             if (board[combo[0]] && board[combo[0]] == board[combo[1]] && board[combo[0]] == board[combo[2]]) {
-                game.winner = (await User.findOne({ username }))?.id;
+                game.winner = (await User.findOne({ username }))?.username;
                 game.status = 'Finished';
                 game.endTime = new Date();
 
@@ -196,6 +196,41 @@ class MultiplayerGameController {
                 return null;
             }
         }
+    }
+
+    static async rejoinGame(gameId: string, username: string) {
+        let game = await Game.findById(gameId);
+
+        if (!game) {
+            return null;
+        }
+
+        let player = await User.findOne({ username });
+
+        if (!player) {
+            return null;
+        }
+
+        if (game.player1 == player.id || game.player2 == player.id) {
+            let board = await GenerateBoard(gameId);
+            let history = await GetHistory(gameId);
+
+            let lastMove = history[history.length - 1];
+
+            if(lastMove){
+                var nextValue = lastMove.value == 'X' ? 'O' : 'X';
+    
+                let nextPlayer = game.player1 == lastMove.player ? game.player2 : game.player1;
+    
+                let hasStarted = game.status == 'Started';
+
+                return { player1: game.player1, player2: game.player2, board, nextPlayer, nextValue, history, hasStarted };
+            }
+
+            return { player1: game.player1, player2: game.player2, board, nextPlayer: game.player1, nextValue: 'X', history, hasStarted: false };
+        }
+
+        return null;
     }
 }
 

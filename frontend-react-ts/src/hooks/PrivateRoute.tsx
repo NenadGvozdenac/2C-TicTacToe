@@ -9,6 +9,8 @@ const ValidateToken = async (token: string): Promise<boolean> => {
         localStorage.setItem('userId', response.data.userId);
         return true;
     } catch {
+        localStorage.removeItem('jwtToken')
+        localStorage.removeItem('username')
         return false;
     }
 }
@@ -24,6 +26,8 @@ const PrivateRoute = ({ redirectPath = '/' }) => {
                 setIsAuthenticated(isValid);
             } else {
                 setIsAuthenticated(false);
+                localStorage.removeItem('jwtToken');
+                localStorage.removeItem('username');
             }
         };
 

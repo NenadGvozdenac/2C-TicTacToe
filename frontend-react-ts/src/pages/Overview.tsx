@@ -3,7 +3,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { io } from 'socket.io-client';
 
 type Game = {
   _id: string;
@@ -22,8 +21,7 @@ const Overview: React.FC = () => {
   const [gameId, setGameId] = useState<string | null>(null);
   const navigate = useNavigate();
   const [previousGames, setPreviousGames] = useState<Game[]>([]);
-
-  let socket = io("http://localhost:4000");
+  const [invalidGameId, setInvalidGameId] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPreviousGames = async () => {
@@ -32,8 +30,8 @@ const Overview: React.FC = () => {
           params: { username }
         });
         // First set the previous games that have status === 'Started', then set the rest
-        setPreviousGames(response.data.filter((game: Game) => game.status === 'Started' || game.status === "Pending"));
-        setPreviousGames((prevGames) => [...prevGames, ...response.data.filter((game: Game) => game.status !== 'Started' && game.status !== "Pending")]);
+        setPreviousGames(response.data.games.filter((game: Game) => game.status === 'Started' || game.status === "Pending"));
+        setPreviousGames((prevGames) => [...prevGames, ...response.data.games.filter((game: Game) => game.status !== 'Started' && game.status !== "Pending")]);
       } catch (error) {
         console.error('Error fetching previous games:', error);
       }
@@ -42,9 +40,16 @@ const Overview: React.FC = () => {
     fetchPreviousGames();
   }, [username]);
 
-  const handleJoinGame = (id: string) => {
+  const handleJoinGame = async (id: string) => {
     console.log(`Joining game with ID: ${id}`);
-    navigate(`/multiplayer?gameid=${id}`);
+    // Check if the game exists
+    try {
+      await axios.get(`http://localhost:3000/games/multiplayer/${id}`);
+      navigate(`/multiplayer?gameid=${id}`);
+    } catch (error) {
+      console.error('Error joining game:', error);
+      setInvalidGameId(true);
+    }
   };
 
   const createSingleplayerGame = () => {
@@ -133,6 +138,7 @@ const Overview: React.FC = () => {
 
         <div className='my-4'>
           <h5>Join a Game</h5>
+          {invalidGameId && <p className='text-danger'>Please enter a valid Game ID</p>}
           <div className='input-group mb-3'>
             <input
               type='text'

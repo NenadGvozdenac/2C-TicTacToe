@@ -1,0 +1,22 @@
+enum GameStatus {
+    Pending
+    Started
+    InProgress
+    Finished
+}
+
+type Game {
+    creator: User!
+    player1: User!
+    player2: User
+    startTime: String!
+    endTime: String
+    winner: User
+    isSinglePlayer: Boolean!
+    status: GameStatus!
+}
+
+type Query {
+    games: [Game]
+    game(id: ID!): Game
+}

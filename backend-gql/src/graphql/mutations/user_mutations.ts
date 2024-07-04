@@ -26,7 +26,7 @@ const userMutations = {
             });
 
             await newUser.save();
-            return user;
+            return newUser;
         },
 
         login: async (_: any, data: { username: string, password: string }) => {
@@ -45,6 +45,11 @@ const userMutations = {
             }
 
             return { message: 'Logged in successfully', token: generateJwtToken({ username: user.username, userid: user.id })}
+        },
+
+        deleteAll: async () => {
+            await User.deleteMany({});
+            return []
         }
     }
 }

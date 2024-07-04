@@ -1,5 +1,8 @@
-import userSchema from "./user_schema";
+import { readFileSync } from "fs";
 
-const schemas = [userSchema];
+const userSchema = readFileSync("./src/graphql/schemas/user_schema.graphql", "utf8");
+const gameSchema = readFileSync("./src/graphql/schemas/game_schema.graphql", "utf8");
+
+const schemas = [userSchema, gameSchema];
 
 export default schemas;

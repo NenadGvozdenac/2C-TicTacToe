@@ -52,7 +52,6 @@ const TicTacToeBoardSingleplayer: React.FC<TicTacToeBoardSingleplayerProps> = ({
 
       setTimeout(() => {
         if (move.game.winner) {
-          console.log(move.game.winner.id, localStorage.getItem("userId"));
           if (move.game.winner.id == localStorage.getItem("userId")) {
             alert("You won!");
           }
@@ -61,10 +60,12 @@ const TicTacToeBoardSingleplayer: React.FC<TicTacToeBoardSingleplayerProps> = ({
             alert("You lost!");
           }
 
-          if (!move.game.winner) {
-            alert("It's a draw!");
-          }
+          navigate(`/overview`);
+          return;
+        }
 
+        if(!move.game.board.includes('')) {
+          alert("It's a tie!");
           navigate(`/overview`);
         }
       }, 1000);

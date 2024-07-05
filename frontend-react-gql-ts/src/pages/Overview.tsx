@@ -77,7 +77,7 @@ const Overview: React.FC = () => {
 
   function continueGame(e: React.MouseEvent<HTMLButtonElement, MouseEvent>, game: Game): void {
     e.preventDefault();
-    if (game.gameType === 'Singleplayer') {
+    if (game.gameType === 'SinglePlayer') {
       navigate(`/singleplayer?gameid=${game.id}`);
     } else {
       navigate(`/multiplayer?gameid=${game.id}`);
@@ -167,12 +167,12 @@ const Overview: React.FC = () => {
                     <p className='card-text'><strong>Player 1:</strong> {game.player1 ? game.player1.username : "Pending"}</p>
                     <p className='card-text'><strong>Player 2:</strong> {game.player2 ? game.player2.username : "Pending"}</p>
                     <p className='card-text'><strong>Start Time:</strong> {game.startTime ? new Date(Number(game.startTime)).toLocaleString() : "Not started yet!"}</p>
-                    <p className='card-text'><strong>End Time:</strong> {game.endTime ? new Date(Number(game.endTime)).toLocaleString() : "Not started yet!"}</p>
+                    <p className='card-text'><strong>End Time:</strong> {game.endTime ? new Date(Number(game.endTime)).toLocaleString() : "Not finished yet!"}</p>
                     <p className='card-text'><strong>Game Winner:</strong> {game.winner ? (game.winner.username === "Draw" ? "It's a draw! No winners!" : game.winner.username) : "No winners yet!"}</p>
                     <p className='card-text'><strong>Status:</strong> {game.status}</p>
                     <div className="d-flex justify-content-center align-items center gap-2">
-                      {game.winner ? null : <button className='btn btn-primary col-6' onClick={e => continueGame(e, game)}>Continue Game</button>}
-                      {game.winner ? <button className='btn btn-secondary col-6' onClick={e => navigateToGameHistory(e, game)}>Game history</button> : <button className='btn btn-secondary col-6' onClick={e => navigateToGameHistory(e, game)}>Game history</button>}
+                      {game.status === "Finished" ? null : <button className='btn btn-primary col-6' onClick={e => continueGame(e, game)}>Continue Game</button>}
+                      {game.status === "Finished" ? <button className='btn btn-secondary col-6' onClick={e => navigateToGameHistory(e, game)}>Game history</button> : null}
                     </div>
                   </div>
                 </div>

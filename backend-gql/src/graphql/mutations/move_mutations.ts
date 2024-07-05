@@ -58,8 +58,10 @@ const moveMutation = {
                 // Make the bot do a move
                 if (game.board.includes(''))
                     saveBotMove(game);
-                else
+                else {
                     game.gameStatus = 'Finished';
+                    game.endTime = new Date();
+                }
 
 
                 if (winningConditionMet(game)) {

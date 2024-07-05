@@ -20,7 +20,6 @@ class GameController {
 
         let games = await Game.find({ $or: [{ player1: username }, { player2: username }, { player1: user.id }, { player2: user.id }] });
 
-        // Find the games where the user is the creator
         const creatorGames = await Game.find({ creator: username });
 
         for (let game of games) {
@@ -30,14 +29,10 @@ class GameController {
             }
         }
 
-        // Need unique games
-        let gamesToReturn = [...games, ...creatorGames];
-
-        // Remove duplicates
-        gamesToReturn = gamesToReturn.filter((game, index, self) => self.findIndex(t => t.id === game.id) === index);
+        let uniqueGames = [...games, ...creatorGames].filter((game, index, self) => self.findIndex(t => t.id === game.id) === index);
 
         return res.status(200).json({
-            games: gamesToReturn
+            games: uniqueGames
         });
     }
 
@@ -57,7 +52,6 @@ class GameController {
             await game.save();
             return res.status(201).json({ message: 'Game created', gameId: game.id });
         } catch (error) {
-            console.log(error);
             return res.status(400).json({ message: 'Game creation failed' });
         }
     }
@@ -121,8 +115,6 @@ class GameController {
         const isSinglePlayer: boolean = false;
         const winner: string = '';
         const status: string = 'Pending';
-
-        console.log(creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status);
 
         const game = new Game({ creator, player1, player2, startTime, endTime, isSinglePlayer, winner, status });
 

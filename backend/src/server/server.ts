@@ -24,11 +24,8 @@ io.on('connection', async (socket) => {
                 return;
             }
 
-            let { player1, player2, board, nextPlayer, nextValue, history, hasStarted } = data;
-
             socket.join(gameid);
-
-            socket.emit('rejoinGame', { player1, player2, board, nextPlayer, nextValue, history, hasStarted });
+            socket.emit('rejoinGame', data);
         });
     });
 
@@ -38,7 +35,7 @@ io.on('connection', async (socket) => {
             if (!game) {
                 return;
             }
-            // Want to create a new room for each game
+
             socket.join(gameid);
             console.log('Players:', game.player1, game.player2);
             io.to(gameid).emit('playerJoined', { players: [game.player1, game.player2] });
@@ -51,6 +48,7 @@ io.on('connection', async (socket) => {
             if (!game) {
                 return;
             }
+            
             console.log('Players:', game.player1, game.player2);
             io.to(gameid).emit('playerLeft', { players: [game.player1, game.player2] });
         });

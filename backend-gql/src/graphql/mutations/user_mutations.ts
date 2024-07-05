@@ -40,7 +40,7 @@ const userMutations = {
                 throw new Error('Invalid password');
             }
 
-            return { message: 'Logged in successfully', token: generateJwtToken({ username: user.username, userid: user.id })}
+            return { message: 'Logged in successfully', token: generateJwtToken({ username: user.username, userid: user.id }), user: user}
         },
 
         deleteAll: async () => {

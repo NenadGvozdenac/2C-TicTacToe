@@ -1,0 +1,19 @@
+type Move {
+    id: ID!
+    game: Game!
+    player: User!
+    value: String!
+    row: Int!
+    col: Int!
+    timestamp: String!
+}
+
+type Query {
+    getMovesByGame(gameId: ID!): [Move]!
+    getMoveById(moveId: ID!): Move!
+}
+
+type Mutation {
+    createMove(gameId: ID!, playerId: ID!, row: Int!, col: Int!, value: String!): Move!
+    deleteAllMoves: [Move]!
+}

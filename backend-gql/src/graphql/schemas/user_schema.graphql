@@ -5,14 +5,21 @@ type User {
 }
 
 type JWTResponse {
-    message: String
-    token: String
+    message: String!
+    token: String!
+    user: User!
+}
+
+type DecodedJWT {
+    userid: ID!
+    username: String!
 }
 
 type Query {
     users: [User]
     user(id: ID!): User
     userByUsername(username: String!): User
+    decodeJwt(token: String!): DecodedJWT
 }
 
 type Mutation {

@@ -5,7 +5,7 @@ const moveSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    player: {
+    playerId: {
         type: String,
         required: true,
     },

@@ -1,7 +1,6 @@
 enum GameStatus {
     Pending
     Started
-    InProgress
     Finished
 }
 
@@ -11,22 +10,29 @@ enum GameType {
 }
 
 type Game {
+    id: ID!
     creator: User!
-    player1: User!
+    player1: User
     player2: User
-    startTime: String!
+    startTime: String
     endTime: String
     winner: User
     gameType: GameType!
     status: GameStatus!
+    board: [String]!
+    moves: [Move]!
+    nextPlayer: User
 }
 
 type Query {
     getAllGamesByUser(userId: ID!): [Game]!
     getAllGamesByUsername(username: String!): [Game]!
     getGameById(gameId: ID!): Game!
+    getAllGames: [Game]!
 }
 
 type Mutation {
-    createGame(creatorId: ID!, playerId: ID!, gameType: GameType!): Game!
+    createGame(creatorId: ID!, gameType: GameType!): Game!
+    addPlayerToGame(gameId: ID!, playerId: ID!): Game!
+    deleteAllGames: [Game]!
 }

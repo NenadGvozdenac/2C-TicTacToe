@@ -1,21 +1,21 @@
 import mongoose from 'mongoose';
 
 const gameSchema = new mongoose.Schema({
-    creator: {
+    creator_id: {
         type: String,
         required: true,
     },
-    player1: {
+    player1_id: {
         type: String,
-        required: true,
+        required: false,
     },
-    player2: {
+    player2_id: {
         type: String,
-        required: true,
+        required: false,
     },
     startTime: {
         type: Date,
-        required: true,
+        required: false,
     },
     endTime: {
         type: Date,
@@ -25,15 +25,25 @@ const gameSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
-    isSinglePlayer: {
-        type: Boolean,
-        required: true,
-    },
-    status: {
+    gameType: {
         type: String,
-        enum: ['Pending', 'Started', 'InProgress', 'Finished'],
+        enum: ['SinglePlayer', 'MultiPlayer'],
+        required: true,
+        default: 'SinglePlayer',
+    },
+    gameStatus: {
+        type: String,
+        enum: ['Pending', 'Started', 'Finished'],
         required: true,
         default: 'Started',
+    },
+    nextPlayer_id: {
+        type: String,
+        required: false,
+    },
+    board: {
+        type: [String],
+        required: false,
     },
 });
 

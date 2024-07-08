@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { FETCH_PREVIOUS_GAMES, CREATE_GAME } from '../queries/overview_queries';
+import { GET_GAME_BY_ID } from '../queries/singleplayer_game_queries';
 
 type Game = {
   id: string;
@@ -30,6 +31,7 @@ type Game = {
 };
 
 const Overview: React.FC = () => {
+  const client = useApolloClient();
   const username = localStorage.getItem('username') || 'User';
   const [gameId, setGameId] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -76,7 +78,17 @@ const Overview: React.FC = () => {
       setInvalidGameId(true);
       return;
     }
-    navigate(`/multiplayer?gameid=${id}`);
+
+    try {
+      await client.query({
+        query: GET_GAME_BY_ID,
+        variables: { gameId: id }
+      });
+      navigate(`/multiplayer?gameid=${id}`);
+    } catch(error) {
+      setInvalidGameId(true);
+      return;
+    }
   };
 
   function continueGame(e: React.MouseEvent<HTMLButtonElement, MouseEvent>, game: Game): void {

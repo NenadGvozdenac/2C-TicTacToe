@@ -30,7 +30,7 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
             setBoard(game.board);
             setMoves(game.moves);
             setJoinedPlayers(players);
-            setEnabledStartButton(players.length == 2);
+            setEnabledStartButton(players.length == 2 && players.includes(localStorage.getItem("username")));
             setGameStarted(game.status == "Started");
             setJoined(players.includes(localStorage.getItem("username")));
             setCanMakeTurn(game.nextPlayer.id === localStorage.getItem("userId"));
@@ -71,7 +71,7 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
             if(winner) {
                 setCanMakeTurn(false);
                 setDisplayedGameEnd(`Game ended. Winner: ${winner.username}`);
-                setTimeout(() => navigate("/overview"), 1000)
+                setTimeout(() => navigate("/overview"), 3000)
             }
 
             setCanMakeTurn(move.game.nextPlayer.id === localStorage.getItem("userId"));
@@ -150,7 +150,7 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
                                     <li key={index}>{player}</li>
                                 ))}
                             </ul>
-                            {!joined && <button className="btn btn-primary" onClick={() => joinGame()}>
+                            {!joined && joinedPlayers.includes(localStorage.getItem("username") as string) && <button className="btn btn-primary" onClick={() => joinGame()}>
                                 Join Game
                             </button>
                             }

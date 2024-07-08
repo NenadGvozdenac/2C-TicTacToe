@@ -2,10 +2,20 @@ import { useMutation, useQuery, useSubscription } from "@apollo/client";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { ADD_PLAYER_TO_GAME, START_GAME, MAKE_MOVE, PLAYER_JOINED_SUBSCRIPTION, GAME_STARTED_SUBSCRIPTION, MOVE_MADE_SUBSCRIPTION } from "../queries/multiplayer_game_queries";
+import {
+    ADD_PLAYER_TO_GAME,
+    START_GAME,
+    MAKE_MOVE,
+    PLAYER_JOINED_SUBSCRIPTION,
+    GAME_STARTED_SUBSCRIPTION,
+    MOVE_MADE_SUBSCRIPTION
+} from "../queries/multiplayer_game_queries";
 import { GET_GAME_BY_ID } from "../queries/singleplayer_game_queries";
+import GameBoard from "./GameBoard";
+import GameInfo from "./GameInfo";
+import GameHistory from "./GameHistory";
 
-const TicTacToeBoardMultiplayer: React.FC = () => {
+const TicTacToeMultiplayer: React.FC = () => {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const gameid = searchParams.get("gameid");
@@ -21,7 +31,7 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
     const [currentValue, setCurrentValue] = useState<string>("X");
 
     const navigate = useNavigate();
-    
+
     useQuery(GET_GAME_BY_ID, {
         variables: { gameId: gameid },
         onCompleted: (data) => {
@@ -58,7 +68,6 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
         }
     });
 
-
     useSubscription(MOVE_MADE_SUBSCRIPTION, {
         variables: { gameId: gameid },
         onSubscriptionData: ({ subscriptionData }) => {
@@ -68,7 +77,7 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
             setBoard(newBoard);
             setMoves([...moves, move]);
 
-            if(winner) {
+            if (winner) {
                 setCanMakeTurn(false);
                 setDisplayedGameEnd(`Game ended. Winner: ${winner.username}`);
                 setTimeout(() => navigate("/overview"), 3000)
@@ -109,94 +118,46 @@ const TicTacToeBoardMultiplayer: React.FC = () => {
         },
     });
 
+    const handleMakeMove = (index: number) => {
+        makeMove({
+            variables: {
+                gameId: gameid,
+                playerId: localStorage.getItem("userId"),
+                row: Math.floor(index / 3),
+                col: index % 3,
+                value: currentValue
+            }
+        });
+    };
+
     return (
         <div className="container">
+            {displayedGameEnd && <div className="alert alert-success" role="alert">
+                {displayedGameEnd}
+            </div>}
             <div className="row d-flex flex-row justify-content-center my-3">
                 <div className="col-md-8">
-                    <div className="card mb-3">
-                        <div className="card-body">
-                            <h5 className="card-title">Game Board</h5>
-                            {displayedGameEnd && <div className="alert alert-primary" role="alert">
-                                {displayedGameEnd}
-                            </div>}
-                            <div className="row">
-                                {board.map((cell, index) => (
-                                    <div
-                                        key={index}
-                                        className="col-4 border text-center d-flex flex-column justify-content-center align-items-center"
-                                        style={(!joined || !canMakeTurn || board[index]) ? { cursor: 'not-allowed', height: '200px', fontSize: '3em' } : { cursor: 'pointer', height: '200px', fontSize: '3em' }}
-                                        onClick={() => makeMove({variables: {
-                                            gameId: gameid,
-                                            playerId: localStorage.getItem("userId"),
-                                            row: Math.floor(index / 3),
-                                            col: index % 3,
-                                            value: currentValue
-                                        }})}>
-                                        {cell}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+                    <GameBoard
+                        board={board}
+                        canMakeTurn={joined && canMakeTurn}
+                        currentValue={currentValue}
+                        makeMove={handleMakeMove}
+                    />
                 </div>
-                {!gameStarted && <div className="col-md-4">
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="card-title">Join Game</h5>
-                            <p>Game ID: {gameid}</p>
-                            {joinedPlayers.length > 0 && <p>Joined players: </p>}
-                            <ul>
-                                {joinedPlayers.filter(player => player !== "Pending").map((player, index) => (
-                                    <li key={index}>{player}</li>
-                                ))}
-                            </ul>
-                            {!joined && joinedPlayers.includes(localStorage.getItem("username") as string) && <button className="btn btn-primary" onClick={() => joinGame()}>
-                                Join Game
-                            </button>
-                            }
-                            {enabledStartButton && <button className="btn btn-primary" onClick={() => startGame()}>
-                                Start Game
-                            </button>
-                            }
-                            {joined && <button className="btn btn-danger">
-                                Leave Game
-                            </button>}
-                        </div>
-                    </div>
-                </div>
-                }
+                {!gameStarted && <GameInfo
+                    gameid={gameid as string}
+                    joined={joined}
+                    joinedPlayers={joinedPlayers}
+                    enabledStartButton={enabledStartButton}
+                    joinGame={() => joinGame()}
+                    startGame={() => startGame()}
+                />}
             </div>
             <div className="row">
-                <div className="col-md-12">
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="card-title">Game History</h5>
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>Move</th>
-                                        <th>Player</th>
-                                        <th>Position</th>
-                                        <th>Timestamp</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {moves.map((move, index) => (
-                                        <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>{move.player.username}</td>
-                                            <td>{move.row}, {move.col}</td>
-                                            <td>{new Date(Number(move.timestamp)).toLocaleString()}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <GameHistory moves={moves} />
             </div>
         </div>
     );
 }
 
-export default TicTacToeBoardMultiplayer;
+export default TicTacToeMultiplayer;

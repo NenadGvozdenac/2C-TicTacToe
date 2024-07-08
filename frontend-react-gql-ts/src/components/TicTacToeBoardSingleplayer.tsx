@@ -35,8 +35,6 @@ const TicTacToeBoardSingleplayer: React.FC<TicTacToeBoardSingleplayerProps> = ({
     variables: { gameId: gameid, playerId: localStorage.getItem("userId") },
     onCompleted: _ => {
       setJoinedGame(true);
-
-      // Because its singleplayer, the client can make the first move
       setCanMakeMove(true);
     },
     onError: (error) => {

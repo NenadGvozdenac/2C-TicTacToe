@@ -1,0 +1,3 @@
+MONGO_INITDB_ROOT_USERNAME=nenadgvozdenacsrb
+MONGO_INITDB_ROOT_PASSWORD=sflopClas8CnPphb
+MONGO_URI=mongodb://nenadgvozdenacsrb:sflopClas8CnPphb@mongo:27017/your_database

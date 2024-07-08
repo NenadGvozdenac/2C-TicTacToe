@@ -34,5 +34,6 @@ type Query {
 type Mutation {
     createGame(creatorId: ID!, gameType: GameType!): Game!
     addPlayerToGame(gameId: ID!, playerId: ID!): Game!
+    startMultiplayerGame(gameId: ID!): Game!
     deleteAllGames: [Game]!
 }

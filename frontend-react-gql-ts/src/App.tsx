@@ -9,6 +9,7 @@ import PrivateRoute from './hooks/PrivateRoute';
 import Overview from './pages/Overview';
 import GameHistory from './pages/GameHistory';
 import SingleplayerGame from './pages/SingleplayerGame';
+import MultiplayerGame from './pages/MultiplayerGame';
 
 const App: React.FC = () => {
   return (
@@ -21,6 +22,9 @@ const App: React.FC = () => {
         </Route>
         <Route path="/singleplayer" element={<PrivateRoute />}>
           <Route path="/singleplayer" element={<SingleplayerGame />} />
+        </Route>
+        <Route path="/multiplayer" element={<PrivateRoute />}>
+          <Route path="/multiplayer" element={<MultiplayerGame />} />
         </Route>
         <Route path="/history" element={<PrivateRoute />}>
           <Route path="/history" element={<GameHistory />} />

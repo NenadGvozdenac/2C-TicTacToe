@@ -72,7 +72,11 @@ const Overview: React.FC = () => {
   });
 
   const handleJoinGame = async (id: string) => {
-
+    if (id === null || id === '') {
+      setInvalidGameId(true);
+      return;
+    }
+    navigate(`/multiplayer?gameid=${id}`);
   };
 
   function continueGame(e: React.MouseEvent<HTMLButtonElement, MouseEvent>, game: Game): void {

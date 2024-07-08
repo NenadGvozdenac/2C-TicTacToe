@@ -2,6 +2,8 @@ import Game from "../../models/game";
 import Move from "../../models/move";
 import User from "../../models/user";
 
+import { pubsub } from "../resolvers/subscriptions_resolvers";
+
 const moveMutation = {
     Mutation: {
         createMove: async (_: any, { gameId, playerId, row, col, value }: { gameId: string, playerId: string, row: number, col: number, value: string }) => {
@@ -46,6 +48,10 @@ const moveMutation = {
                 game.endTime = new Date();
 
                 await game.save();
+
+                if(game.gameType === "MultiPlayer")
+                    pubsub.publish(`MOVE_MADE_${gameId}`, { moveMade: move });
+
                 return move;
             }
 
@@ -54,6 +60,10 @@ const moveMutation = {
                     game.nextPlayer_id = game.player2_id;
                 else
                     game.nextPlayer_id = game.player1_id;
+
+                await game.save();
+
+                pubsub.publish(`MOVE_MADE_${gameId}`, { moveMade: move });
             } else {
                 // Make the bot do a move
                 if (game.board.includes(''))
@@ -74,9 +84,9 @@ const moveMutation = {
                 }
 
                 game.nextPlayer_id = game.player1_id;
-            }
 
-            await game.save();
+                await game.save();
+            }
 
             return move;
         },

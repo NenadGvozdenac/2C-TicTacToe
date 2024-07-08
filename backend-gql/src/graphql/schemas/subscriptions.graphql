@@ -1,0 +1,5 @@
+type Subscription {
+    moveMade(gameId: ID!): Move
+    playersJoined(gameId: ID!): [User]
+    gameStarted(gameId: ID!): Game
+}
